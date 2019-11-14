@@ -1,4 +1,4 @@
-# The_Examiner-NN
+# TheExaminer-NN
 Proyecto 4 - Inteligencia Artificial - Neural Network The Examiner - C
 
 ------------------------------------------------------------------------------------------------------------------

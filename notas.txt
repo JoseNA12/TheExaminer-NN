@@ -1,0 +1,15 @@
+--- Ann NN ---
+
+* Cada pixel de la imagen es un input
+    -> Cantidad de dimensiones de la imagen
+
+Capa de salida: 
+    - Función de activación: Softmax
+    - Función de error: Cross entropy
+    - 6 neuronas (se tienen 6 clases: A B C D E OTRO)
+
+
+Valores para ir probando la red:
+    - 6 neuronas en la primer capa oculta
+    - 8 en la segunda
+    - 6 en la capa de salida (posiblemente se quede en 6)

@@ -17,7 +17,7 @@
 
 int main(int argc, char *argv[]) {
 
-   char *file_name = "util";
+   char *file_name = "Python/util.py";
    char *function_name = "multiply";
 
    PyObject *pName, *pModule, *pFunc;

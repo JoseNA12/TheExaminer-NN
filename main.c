@@ -12,12 +12,26 @@
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 
-// https://docs.python.org/3.7/extending/embedding.html
+/* Documentación de la liga de Python en C
+   https://docs.python.org/3.7/extending/embedding.html
+
+   Nota:
+      Se deben agregar las siguientes 2 lineas justo despues de "Py_Initialize()":
+      
+         PyRun_SimpleString("import sys");
+         PyRun_SimpleString("sys.path.append(\".\")");
+
+      O bien, agregar esta linea al principio del main:
+
+         setenv("PYTHONPATH",".",1);
+
+      Fuente: https://stackoverflow.com/questions/24492327/python-embedding-in-c-importerror-no-module-named-pyfunction
+*/
+
+char *file_name = "util";
 
 
-int main(int argc, char *argv[]) {
-
-   char *file_name = "Python/util.py";
+void funcionPrueba_con_parametros() {
    char *function_name = "multiply";
 
    PyObject *pName, *pModule, *pFunc;
@@ -26,28 +40,29 @@ int main(int argc, char *argv[]) {
    int i;
 
    Py_Initialize();
+
    pName = PyUnicode_DecodeFSDefault(file_name);
-   /* Error checking of pName left out */
+   // Error checking of pName left out
 
    pModule = PyImport_Import(pName);
    Py_DECREF(pName);
 
    if (pModule != NULL) {
       pFunc = PyObject_GetAttrString(pModule, function_name);
-      /* pFunc is a new reference */
+      // pFunc is a new reference
 
       if (pFunc && PyCallable_Check(pFunc)) {
-         argc = 5;
-         pArgs = PyTuple_New(argc - 3);
-         for (i = 0; i < argc - 3; ++i) {
+         
+         pArgs = PyTuple_New(2);
+         for (i = 0; i < 2; ++i) {
                pValue = PyLong_FromLong(atoi("19"));
                if (!pValue) {
                   Py_DECREF(pArgs);
                   Py_DECREF(pModule);
                   fprintf(stderr, "Cannot convert argument\n");
-                  return 1;
+                  return;
                }
-               /* pValue reference stolen here: */
+               // pValue reference stolen here:
                PyTuple_SetItem(pArgs, i, pValue);
          }
          pValue = PyObject_CallObject(pFunc, pArgs);
@@ -61,7 +76,7 @@ int main(int argc, char *argv[]) {
                Py_DECREF(pModule);
                PyErr_Print();
                fprintf(stderr,"Call failed\n");
-               return 1;
+               return;
          }
       }
       else {
@@ -75,14 +90,76 @@ int main(int argc, char *argv[]) {
    else {
       PyErr_Print();
       fprintf(stderr, "Failed to load \"%s\"\n", file_name);
-      return 1;
+      return;
    }
    if (Py_FinalizeEx() < 0) {
-      return 120;
+      return;
    }
-   return 0;
-   
 }
+
+void funcionPrueba_sin_parametros() {
+   char *function_name = "multiply_2";
+
+   PyObject *pName, *pModule, *pFunc;
+   PyObject *pValue;
+
+   int i;
+
+   Py_Initialize();
+
+   pName = PyUnicode_DecodeFSDefault(file_name);
+   // Error checking of pName left out
+
+   pModule = PyImport_Import(pName);
+   Py_DECREF(pName);
+
+   if (pModule != NULL) {
+      pFunc = PyObject_GetAttrString(pModule, function_name);
+
+      if (pFunc && PyCallable_Check(pFunc)) {
+         pValue = PyObject_CallObject(pFunc, NULL);
+
+         if (pValue != NULL) {
+               printf("Result of call: %ld\n", PyLong_AsLong(pValue));
+               Py_DECREF(pValue);
+         }
+         else {
+               Py_DECREF(pFunc);
+               Py_DECREF(pModule);
+               PyErr_Print();
+               fprintf(stderr,"Call failed\n");
+               return;
+         }
+      }
+      else {
+         if (PyErr_Occurred())
+               PyErr_Print();
+         fprintf(stderr, "Cannot find function \"%s\"\n", function_name);
+      }
+      Py_XDECREF(pFunc);
+      Py_DECREF(pModule);
+   }
+   else {
+      PyErr_Print();
+      fprintf(stderr, "Failed to load \"%s\"\n", file_name);
+      return;
+   }
+   if (Py_FinalizeEx() < 0) {
+      return;
+   }
+}
+
+
+int main(int argc, char *argv[]) {
+   setenv("PYTHONPATH",".",1);
+   
+   funcionPrueba_con_parametros();
+
+   funcionPrueba_sin_parametros();
+
+   return 0;
+}
+
 
 
 void caca() {

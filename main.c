@@ -98,7 +98,7 @@ void funcionPrueba_con_parametros() {
 }
 
 void funcionPrueba_sin_parametros() {
-   char *function_name = "multiply_2";
+   char *function_name = "resize_img";
 
    PyObject *pName, *pModule, *pFunc;
    PyObject *pValue;

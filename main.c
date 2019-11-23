@@ -9,43 +9,79 @@
    2. locate Python.h
       - copiar la ruta del archivo .h en "exec.sh"
 */
+#define PY_SSIZE_T_CLEAN
 #include <Python.h>
+
+// https://docs.python.org/3.7/extending/embedding.html
 
 
 int main(int argc, char *argv[]) {
 
-   PyObject *pName, *pModule, *pDict, *pFunc, *pValue;
+   char *file_name = "util";
+   char *function_name = "multiply";
 
-   // Initialize the Python Interpreter
+   PyObject *pName, *pModule, *pFunc;
+   PyObject *pArgs, *pValue;
+
+   int i;
+
    Py_Initialize();
+   pName = PyUnicode_DecodeFSDefault(file_name);
+   /* Error checking of pName left out */
 
-   // Build the name object
-   pName = PyUnicode_FromString("Python/util.py");
-
-   // Load the module object
    pModule = PyImport_Import(pName);
+   Py_DECREF(pName);
 
-   // pDict is a borrowed reference 
-   pDict = PyModule_GetDict(pModule);
+   if (pModule != NULL) {
+      pFunc = PyObject_GetAttrString(pModule, function_name);
+      /* pFunc is a new reference */
 
-   // pFunc is also a borrowed reference 
-   pFunc = PyDict_GetItemString(pDict, "multiply");
-
-   if (PyCallable_Check(pFunc)) {
-      PyObject_CallObject(pFunc, NULL);
+      if (pFunc && PyCallable_Check(pFunc)) {
+         argc = 5;
+         pArgs = PyTuple_New(argc - 3);
+         for (i = 0; i < argc - 3; ++i) {
+               pValue = PyLong_FromLong(atoi("19"));
+               if (!pValue) {
+                  Py_DECREF(pArgs);
+                  Py_DECREF(pModule);
+                  fprintf(stderr, "Cannot convert argument\n");
+                  return 1;
+               }
+               /* pValue reference stolen here: */
+               PyTuple_SetItem(pArgs, i, pValue);
+         }
+         pValue = PyObject_CallObject(pFunc, pArgs);
+         Py_DECREF(pArgs);
+         if (pValue != NULL) {
+               printf("Result of call: %ld\n", PyLong_AsLong(pValue));
+               Py_DECREF(pValue);
+         }
+         else {
+               Py_DECREF(pFunc);
+               Py_DECREF(pModule);
+               PyErr_Print();
+               fprintf(stderr,"Call failed\n");
+               return 1;
+         }
+      }
+      else {
+         if (PyErr_Occurred())
+               PyErr_Print();
+         fprintf(stderr, "Cannot find function \"%s\"\n", function_name);
+      }
+      Py_XDECREF(pFunc);
+      Py_DECREF(pModule);
    }
    else {
       PyErr_Print();
+      fprintf(stderr, "Failed to load \"%s\"\n", file_name);
+      return 1;
    }
-
-   // Clean up
-   Py_DECREF(pModule);
-   Py_DECREF(pName);
-
-   // Finish the Python Interpreter
-   Py_Finalize();
-   
+   if (Py_FinalizeEx() < 0) {
+      return 120;
+   }
    return 0;
+   
 }
 
 

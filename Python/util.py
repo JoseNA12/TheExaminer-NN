@@ -1,5 +1,6 @@
-def multiply():
-    c = 12345*6789
-    print("El resultado es: ")
-    print(c)
+def multiply(a,b):
+    print("Will compute", a, "times", b)
+    c = 0
+    for i in range(0, a):
+        c = c + b
     return c

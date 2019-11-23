@@ -1,4 +1,5 @@
 import cv2, glob
+from ctypes import *
 #Si Python no contiene las libs, se instalan con estos comandos
 # pip install opencv-python
 # pip install glob2
@@ -33,9 +34,20 @@ def resize_img():
         cv2.imshow("Checking",re)
 
         # Mostrar imgs en pantalla (Se puede quitar)
-        #cv2.waitKey(500)
-        #cv2.destroyAllWindows()
+        cv2.waitKey(500)
+        cv2.destroyAllWindows()
 
         # Escribir archivo modificado en el directorio
         cv2.imwrite("resized_"+image, re)
     return 2312
+
+def call_C_function():
+    so_file = "./my_functions.so"
+    my_functions = CDLL(so_file)
+    print(my_functions.square(5))
+
+def main():
+    resize_img()
+    call_C_function()
+
+main()

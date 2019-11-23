@@ -19,8 +19,8 @@ def resize_img():
     # Lista de imágenes que leerá
     images = glob.glob("*.jpeg")
 
-    height = 200
-    width = 100
+    height = 28
+    width = 28
 
     for image in images:
         # Leer imagen y pasarla a BN indicando 0
@@ -39,5 +39,3 @@ def resize_img():
         # Escribir archivo modificado en el directorio
         cv2.imwrite("resized_"+image, re)
     return 2312
-
-resize_img()

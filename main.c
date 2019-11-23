@@ -28,6 +28,11 @@
       Fuente: https://stackoverflow.com/questions/24492327/python-embedding-in-c-importerror-no-module-named-pyfunction
 */
 
+/*
+   Sino reconoce las librerias de Python instalar:
+      pip3 install opencv-python
+*/
+
 char *file_name = "util";
 
 
@@ -153,7 +158,7 @@ void funcionPrueba_sin_parametros() {
 int main(int argc, char *argv[]) {
    setenv("PYTHONPATH",".",1);
    
-   funcionPrueba_con_parametros();
+   //funcionPrueba_con_parametros();
 
    funcionPrueba_sin_parametros();
 

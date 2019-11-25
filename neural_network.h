@@ -14,6 +14,8 @@ typedef double (*ActivationFunc)(double sum);
 typedef struct layer_t_ {
     float b[NEURONS_MAX];
     float W[NEURONS_MAX][CONN_MAX];
+    int neurons;
+    int connections;
 } layer_t;
 
 typedef struct output {

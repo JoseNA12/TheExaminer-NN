@@ -25,8 +25,8 @@ void vector_initialize(vector * vec){
 
 
 void create_layer(int n_connections, int n_neurons, layer_t layer){
-    double bias[n_neurons];
-    double weights[n_connections][n_neurons];
+    float bias[n_neurons];
+    float weights[n_connections][n_neurons];
     for (int i = 0; i < n_neurons; i++) {
         bias[i] = RAND_FLOAT();
         for (int j = 0; j < n_connections; j++) {
@@ -37,37 +37,37 @@ void create_layer(int n_connections, int n_neurons, layer_t layer){
     layer = (layer_t){.b = bias, .W = weights};
 }
 
-void create_neural_network(vector * neural_network, int * topology){
-    layer_t layer;
+void create_neural_network(layer_t *neural_network[LAYERS], int * topology){
+    layer_t * layer;
     for(int i = 0; i < ARRAY_SIZE(topology) - 1; i++){
-        create_layer(topology[i], topology[i+1], &layer);
-        vector_add(neural_network, &layer);
+        create_layer(topology[i], topology[i+1], *layer);
+        neural_network[i] =  layer;
     }
 }
 
 void softmax_activation_function(vector * activations){
     int i;
-    int length = vector_total(*activations);
+    int length = vector_total(activations);
     double sum, max, elem;
 
-    for (i = 1, max = vector_get(*activations, 0); i < length; i++) {
+    for (i = 1, max = vector_get(activations, 0); i < length; i++) {
         if (vector_get(*activations, i) > max) {
-            max = vector_get(*activations, i);
+            max = vector_get(activations, i);
         }
     }
 
     for (i = 0, sum = 0; i < length; i++) {
         vector_set(*activations, i, exp(vector_get(*activations, i) - max));
-        sum += vector_get(*activations, i);
+        sum += vector_get(activations, i);
     }
 
     for (i = 0; i < length; i++) {
-        elem = vector_get(*activations, i);
-        vector_set(*activations, i, elem / sum);
+        elem = vector_get(activations, i);
+        vector_set(activations, i, elem / sum);
     }
 }
 
-vector regression_function (float * X, float * W, float * b){
+vector regression_function (float * X, float ** W, float * b){
     vector output;
     vector_initialize(&output); 
     float sum;
@@ -97,8 +97,7 @@ void neural_network_training_step(vector *neural_network, float * X, int * Y, fl
 void init(float X[IMAGE_SIZE], int Y[LABELS]){
     float learning_rate = 0.5f;
     int topology[] = {IMAGE_SIZE, 3, 4, LABELS};
-    vector neural_network;
-    vector_initialize(&neural_network); 
+    layer_t neural_network[LAYERS];
     create_neural_network(&neural_network, topology);
 
     for (int i = 0; i < STEPS; i++) {

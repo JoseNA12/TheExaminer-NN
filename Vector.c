@@ -1,3 +1,10 @@
+/*
+    Extraido de: https://eddmann.com/posts/implementing-a-dynamic-vector-array-in-c/
+    Fecha de elaboración: 10 Jan 2014
+    Autor: Edd Mann
+    Correo electrónico: the@eddmann.com
+*/
+
 #ifndef VECTOR_H
 #define VECTOR_H
 

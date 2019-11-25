@@ -22,12 +22,16 @@ void vector_initialize(vector * vec){
     vector_init(vec);
 }
 
+/* 
+ 1 bias por cada neurona
+ pesos 1 por cada conexiones y diferente por cada
+*/
 
 void create_layer(int n_connections, int n_neurons, layer_t * layer){
-    for (int i = 0; i < n_neurons; i++) {
-        layer->b[i] = RAND_FLOAT();
-        for (int j = 0; j < n_connections; j++) {
-            layer->W[i][j] = RAND_FLOAT();
+    for (int neuron = 0; neuron < n_neurons; neuron++) {
+        layer->b[neuron] = RAND_FLOAT();
+        for (int connection = 0; connection < n_connections; connection++) {
+            layer->W[neuron][connection] = RAND_FLOAT();
         }
     }
     layer->neurons = n_neurons;
@@ -36,9 +40,9 @@ void create_layer(int n_connections, int n_neurons, layer_t * layer){
 
 void create_neural_network(layer_t * neural_network, int * topology, size_t topology_size){
     layer_t layer;
-    for(int i = 0; i < topology_size - 1; i++){
+    for(int i = 0; i < LAYERS; i++){
         create_layer(topology[i], topology[i+1], &layer);
-        neural_network[i] =  layer;
+        neural_network[i] = layer;
     }
 }
 
@@ -76,7 +80,7 @@ void regression_function (float * X, layer_t * layer, float * output){
 
 void print_array(float * array, int length){
     for(int i = 0; i < length; i++){
-        printf("%d - %f",i, array[i]);
+        printf("%d - %f \n",i, array[i]);
     }
 }
 
@@ -90,19 +94,21 @@ void neural_network_training_step(layer_t * neural_network, float * X, int * Y, 
 }
 
 void init(float * X , int * Y){
-    printf("init");
-    //print_array(X, 4);
-    //print_array(Y, 1);
-    /*layer_t neural_network[LAYERS];
+    print_array(X, 4);
+    layer_t neural_network[LAYERS];
+    
     float learning_rate = 0.5f;
-    int topology[] = {IMAGE_SIZE, 3, 4, LABELS};
-    size_t topology_size = ARRAY_SIZE(topology);
+    /* Topologia
+        1ra capa: 784 connexiones y 3 neuronas
+        2ra capa: 3 conneciones y 4 neuronas
+        3ra capa: 4 conneciones y 8 salidas
+    */
+    int topology[] = {IMAGE_SIZE, 3, 4, LABELS}; 
+    size_t topology_size = ARRAY_SIZE(topology) - 1;
 
     create_neural_network(neural_network, topology, topology_size);
 
     for (int i = 0; i < STEPS; i++) {
-        // Initialise a new batch
-        // --
         // Run one step of gradient descent and calculate the loss
         neural_network_training_step(neural_network, X, Y, learning_rate);
 
@@ -110,13 +116,12 @@ void init(float * X , int * Y){
         // --
 
         //printf("Step %04d\tAverage Loss: %.2f\tAccuracy: %.3f\n", i, loss / batch.size, accuracy);
-    }*/
+    }
 }
 
 int main(int argc, char *argv[]){
     float X[] = {55.5, 123.2, 232.1, 124.0};
     int Y[] = {1};
-    printf("hola");
     init(X, Y);
         
     return 0;

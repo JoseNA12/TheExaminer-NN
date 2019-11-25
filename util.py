@@ -12,7 +12,6 @@ width = 28
 
 
 def resize_img():
-    
     image_path = "images/"
     images = glob.glob(image_path+"*.jpeg")
     images.extend(glob.glob(image_path+'*.png'))
@@ -32,8 +31,8 @@ def resize_img():
         cv2.destroyAllWindows()
 
         # Escribir archivo modificado en el directorio
-        images_pixel_array.append(re)
-        cv2.imwrite("resized_"+image, re)
+        #images_pixel_array.append(re)
+        cv2.imwrite(image_path+"resized_"+image, re)
     #print(images_pixel_array)
 
 def create_txt_files_reading_imgs():
@@ -65,7 +64,7 @@ def call_C_function():
     print(my_functions.list_directory_files())
 
 def main():
-    #resize_img()
+    resize_img()
     #call_C_function()
     create_txt_files_reading_imgs()
 

@@ -1,6 +1,5 @@
-#include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
+#include <string.h>
 #include <math.h>
 
 #include "dataset_controller.h"
@@ -43,53 +42,58 @@ void create_neural_network(layer_t * neural_network, int * topology, size_t topo
     }
 }
 
-void softmax_activation_function(vector * activations){
+// Referencia: https://github.com/AndrewCarterUK/mnist-neural-network-plain-c/blob/master/neural_network.c
+void softmax_activation_function(float * activations, int length){
     int i;
-    int length = vector_total(activations);
-    double sum, max, elem;
+    float sum, max;
 
-    for (i = 1, max = vector_get(activations, 0); i < length; i++) {
-        if (vector_get(*activations, i) > max) {
-            max = vector_get(activations, i);
+    for (i = 1, max = activations[0]; i < length; i++) {
+        if (activations[i] > max) {
+            max = activations[i];
         }
     }
 
     for (i = 0, sum = 0; i < length; i++) {
-        vector_set(*activations, i, exp(vector_get(*activations, i) - max));
-        sum += vector_get(activations, i);
+        activations[i] = exp(activations[i] - max);
+        sum += activations[i];
     }
 
     for (i = 0; i < length; i++) {
-        elem = vector_get(activations, i);
-        vector_set(activations, i, elem / sum);
+        activations[i] /= sum;
     }
 }
 
-vector regression_function (float * X, layer_t * layer){
-    vector output;
-    vector_initialize(&output); 
+void regression_function (float * X, layer_t * layer, float * output){
     float sum;
     for(int i = 0; i < layer->neurons; i++ ){
         sum = layer->b[i];
         for(int j = 0; j < layer->connections; j++ ){
             sum += PIXEL_SCALE(X[j]) * layer->W[i][j];
         }
-        vector_add(&output, &sum);
+        output[i] = sum;
     }
+}
 
-    return output;
+void print_array(float * array, int length){
+    for(int i = 0; i < length; i++){
+        printf("%d - %f",i, array[i]);
+    }
 }
 
 void neural_network_training_step(layer_t * neural_network, float * X, int * Y, float learning_rate){
     for(int i = 0; i < LAYERS; i++){
-        printf("asdas");
-        vector activation = regression_function(X, &neural_network[i]); 
-        softmax_activation_function(&activation);
+        float activation[neural_network[i].neurons];
+        regression_function(X, &neural_network[i], activation); 
+        softmax_activation_function(activation, neural_network[i].neurons);
+        print_array(activation, neural_network[i].neurons);
     }
 }
 
-void init(float X[IMAGE_SIZE], int Y[LABELS]){
-    layer_t neural_network[LAYERS];
+void init(float * X , int * Y){
+    printf("init");
+    //print_array(X, 4);
+    //print_array(Y, 1);
+    /*layer_t neural_network[LAYERS];
     float learning_rate = 0.5f;
     int topology[] = {IMAGE_SIZE, 3, 4, LABELS};
     size_t topology_size = ARRAY_SIZE(topology);
@@ -106,5 +110,14 @@ void init(float X[IMAGE_SIZE], int Y[LABELS]){
         // --
 
         //printf("Step %04d\tAverage Loss: %.2f\tAccuracy: %.3f\n", i, loss / batch.size, accuracy);
-    }
+    }*/
+}
+
+int main(int argc, char *argv[]){
+    float X[] = {55.5, 123.2, 232.1, 124.0};
+    int Y[] = {1};
+    printf("hola");
+    init(X, Y);
+        
+    return 0;
 }

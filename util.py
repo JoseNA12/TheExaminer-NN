@@ -28,16 +28,20 @@ def resize_img():
         cv2.imshow("Checking",re)
 
         # Mostrar imgs en pantalla (Se puede quitar)
-        cv2.waitKey(500)
-        cv2.destroyAllWindows()
+        #cv2.waitKey(500)
+        #cv2.destroyAllWindows()
 
         # Escribir archivo modificado en el directorio
-        images_pixel_array.append(re)
-        cv2.imwrite("resized_"+image, re)
+        #images_pixel_array.append(re)
+
+        filename_w_ext = os.path.basename(image)
+        filename, file_extension = os.path.splitext(filename_w_ext)
+
+        cv2.imwrite(os.getcwd() + "/images/resized/" + filename + file_extension, re)
     #print(images_pixel_array)
 
 def create_txt_files_reading_imgs():
-    image_path = "images/"
+    image_path = "images/resized/"
     images = glob.glob(image_path+"*.jpeg")
     images.extend(glob.glob(image_path+'*.png'))
 
@@ -65,7 +69,7 @@ def call_C_function():
     print(my_functions.list_directory_files())
 
 def main():
-    #resize_img()
+    resize_img()
     #call_C_function()
     create_txt_files_reading_imgs()
 

@@ -1,0 +1,28 @@
+Git: https://github.com/OlafenwaMoses/ImageAI
+Web: http://imageai.org
+
+1. pip3 install -U tensorflow keras opencv-python
+    - sudo pip3 install --upgrade tensorflow-gpu
+2. pip3 install imageai --upgrade
+
+-----------------------------------------
+
+Programa para preparar el dataset:
+
+https://medium.com/deepquestai/object-detection-training-preparing-your-custom-dataset-6248679f0d1d
+
+labelimg:
+
+    sudo apt-get install pyqt5-dev-tools
+    sudo pip3 install -r requirements/requirements-linux-python3.txt
+    make qt5py3
+    python3 labelImg.py
+
+
+https://github.com/OlafenwaMoses/ImageAI/blob/master/imageai/Detection/README.md
+https://imageai.readthedocs.io/en/latest/customdetection/
+https://medium.com/@fmorenovr/installing-successfully-cuda-10-1-and-tensorflow-1-14-to-enable-gpu-processing-1b220dcb23b9
+
+------------------------------------------
+
+https://www.geeksforgeeks.org/how-to-use-google-colab/

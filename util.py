@@ -11,6 +11,7 @@ def resize_img():
     images = glob.glob(image_path+"*.jpeg")
     images.extend(glob.glob(image_path+'*.png'))
 
+
     for image in images:
         # Leer imagen y pasarla a BN indicando 0
         img=cv2.imread(image,0)
@@ -29,6 +30,7 @@ def resize_img():
         images_pixel_array.append(re)
         cv2.imwrite("resized_"+image, re)
     #print(images_pixel_array)
+
 
 def call_C_function():
     so_file = "./dataset_controller.so"

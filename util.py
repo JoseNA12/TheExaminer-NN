@@ -1,16 +1,21 @@
 import cv2, glob
+import os
 from ctypes import *
+from urllib.parse import urlparse
+
 #Si Python no contiene las libs, se instalan con estos comandos
 # pip install opencv-python
 # pip install glob2
 
+height = 28
+width = 28
+
+
 def resize_img():
-    height = 50
-    width = 60
-    image_path = "/home/josue/Documentos/Carrera/TEC/Inteligencia Artificial/TheExaminer-NN/images/"
+    
+    image_path = "images/"
     images = glob.glob(image_path+"*.jpeg")
     images.extend(glob.glob(image_path+'*.png'))
-
 
     for image in images:
         # Leer imagen y pasarla a BN indicando 0
@@ -31,6 +36,28 @@ def resize_img():
         cv2.imwrite("resized_"+image, re)
     #print(images_pixel_array)
 
+def create_txt_files_reading_imgs():
+    image_path = "images/"
+    images = glob.glob(image_path+"*.jpeg")
+    images.extend(glob.glob(image_path+'*.png'))
+
+    for image in images:
+        filename_w_ext = os.path.basename(image)
+        filename, file_extension = os.path.splitext(filename_w_ext)
+
+        f = open("images_txt/" + filename + ".txt","w+")
+
+        img = cv2.imread(image)
+        
+        f.write(str(height) + "\n")
+        f.write(str(width) + "\n")
+
+        for i in range(height):
+            for j in range(width):
+                k = img[i,j]
+                pon = (int(k[0]) + int(k[1]) + int(k[2])) / 3
+                f.write(str(pon) + "\n")
+        f.close()
 
 def call_C_function():
     so_file = "./dataset_controller.so"
@@ -39,6 +66,7 @@ def call_C_function():
 
 def main():
     #resize_img()
-    call_C_function()
+    #call_C_function()
+    create_txt_files_reading_imgs()
 
 main()

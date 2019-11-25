@@ -4,24 +4,12 @@ from ctypes import *
 # pip install opencv-python
 # pip install glob2
 
-def multiply(a,b):
-    print("con parametros")
-    c = 0
-    for i in range(0, a):
-        c = c + b
-    return c
-
-def multiply_2():
-    print("sin parametros")
-    return 2016254241
-
-
 def resize_img():
-    # Lista de imágenes que leerá
-    images = glob.glob("*.jpeg")
-
-    height = 200
-    width = 100
+    height = 50
+    width = 60
+    image_path = "/home/josue/Documentos/Carrera/TEC/Inteligencia Artificial/TheExaminer-NN/images/"
+    images = glob.glob(image_path+"*.jpeg")
+    images.extend(glob.glob(image_path+'*.png'))
 
     for image in images:
         # Leer imagen y pasarla a BN indicando 0
@@ -38,15 +26,17 @@ def resize_img():
         cv2.destroyAllWindows()
 
         # Escribir archivo modificado en el directorio
+        images_pixel_array.append(re)
         cv2.imwrite("resized_"+image, re)
+    #print(images_pixel_array)
 
 def call_C_function():
-    so_file = "./my_functions.so"
+    so_file = "./dataset_controller.so"
     my_functions = CDLL(so_file)
-    print(my_functions.square(5))
+    print(my_functions.list_directory_files())
 
 def main():
-    resize_img()
+    #resize_img()
     call_C_function()
 
 main()

@@ -93,7 +93,7 @@ class Util:
                 for j in range(self.width):
                     k = img[i,j]
                     pon = (int(k[0]) + int(k[1]) + int(k[2])) / 3
-                    f.write(str(pon) + "\n")
+                    f.write(str(pon) + ",\n")
             f.close()
 
     def create_txt_files_annotations(self):

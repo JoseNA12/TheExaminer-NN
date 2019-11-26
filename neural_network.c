@@ -152,73 +152,18 @@ void neural_network_training_step(layer_t * neural_network, float * X, int * Y, 
     }
 }
 
-/**
- * Calculate the accuracy of the predictions of a neural network on a dataset.
-
-float calculate_accuracy(mnist_dataset_t * dataset, neural_network_t * network){
-    float activations[MNIST_LABELS], max_activation;
-    int i, j, correct, predict;
-
-    // Loop through the dataset
-    for (i = 0, correct = 0; i < dataset->size; i++) {
-        // Calculate the activations for each image using the neural network
-        neural_network_hypothesis(&dataset->images[i], network, activations);
-
-        // Set predict to the index of the greatest activation
-        for (j = 0, predict = 0, max_activation = activations[0]; j < MNIST_LABELS; j++) {
-            if (max_activation < activations[j]) {
-                max_activation = activations[j];
-                predict = j;
-            }
-        }
-
-        // Increment the correct count if we predicted the right label
-        if (predict == dataset->labels[i]) {
-            correct++;
-        }
-    }
-
-    // Return the percentage we predicted correctly as the accuracy
-    return ((float) correct) / ((float) dataset->size);
-}
- */
-
-void init(float * X , int * Y){
+void start(int count_img) { 
+    x_set_t set_[count_img];
+    list_directory_files(count_img, set_);
     layer_t neural_network[LAYERS];
     int topology[] = {IMAGE_SIZE, 8}; // 784 conexiones, 8 neuronas
     size_t topology_size = ARRAY_SIZE(topology) - 1;
     create_neural_network(neural_network, topology, topology_size);
     float learning_rate = 0.5f;
-    for (int i = 0; i < 1; i++) {
-        neural_network_training_step(neural_network, X, Y, learning_rate, 1);
-    }
-}
-
-void start(int count_img) { // recibo desde Python la cantidad de images procesadas
-    x_set_t set_[count_img];
-
-    list_directory_files(count_img, set_);
-
-    // AQUI
-
-    for (int i = 0; i < count_img; i++) {
-        //printf("Pixel retrieved: %lf\n", set_[i].pixel_matrix[4]);
-        printf("{%d %d %d %d %d %d %d %d}\n", 
-            set_[i].annotation[0], set_[i].annotation[1], set_[i].annotation[2], set_[i].annotation[3],
-            set_[i].annotation[4], set_[i].annotation[5], set_[i].annotation[6], set_[i].annotation[7]
-            );
-            printf("Pixel de matriz: %lf\n", set_[i].pixel_matrix[0]);
+    for (int i = 0; i < STEPS; i++) {
+        for (int i = 0; i < count_img; i++) {
+            neural_network_training_step(neural_network, set_[i].pixel_matrix, set_[i].annotation, learning_rate, 1);
+        }
     }
 
 }
-
-
-// int main(int argc, char *argv[]){
-//     float X[] = {
-//         252.0, 255.0, 255.0
-//     };
-//     int Y[] = {1,0,0,0,0,0,0,0};
-//     init(X, Y);
-        
-//     return 0;
-// }

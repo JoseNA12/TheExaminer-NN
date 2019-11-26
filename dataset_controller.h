@@ -10,7 +10,7 @@
 
 // Lista Enlazada de imgs. Cada img tiene su mapa de pixeles 
 typedef struct x_set_t_ {
-    double pixel_matrix[IMAGE_SIZE];
+    float pixel_matrix[IMAGE_SIZE];
     int annotation[LABELS];
 } x_set_t;
 

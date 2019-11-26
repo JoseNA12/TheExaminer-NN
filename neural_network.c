@@ -11,28 +11,23 @@
 // Returns a random value between 0 and 1
 #define RAND_FLOAT() (((float) rand()) / ((float) RAND_MAX))
 // Convert a pixel value from 0-255 to one from 0 to 1
-#define PIXEL_SCALE(x) (abs(((float) (x)) / 255.0f) - 1)
+#define PIXEL_SCALE(x) (abs((((float) (x)) / 255.0f) - 1) )
 // Get the real used size of an array
 #define ARRAY_SIZE(x) ((int)(sizeof(x) / sizeof((x)[0])))
 
 #define STEPS 1000
 #define BATCH_SIZE 100
 
-void vector_initialize(vector * vec){
-    vector_free(vec); 
-    vector_init(vec);
-}
-
-/* 
- 1 bias por cada neurona
- pesos 1 por cada conexiones y diferente por cada
+/*
+Esta Red Neuronal esta inspirada en el video de la implementación manual de una NN en Python del canal DotCV
+Video en cuestión: https://youtu.be/W8AeOXa_FqU
 */
 
 void create_layer(int n_connections, int n_neurons, layer_t * layer){
     for (int neuron = 0; neuron < n_neurons; neuron++) {
         layer->b[neuron] = RAND_FLOAT();
         for (int connection = 0; connection < n_connections; connection++) {
-            layer->W[neuron][connection] = RAND_FLOAT();
+            layer->W[neuron][connection] = RAND_FLOAT();        
         }
     }
     layer->neurons = n_neurons;
@@ -48,7 +43,8 @@ void create_neural_network(layer_t * neural_network, int * topology, size_t topo
 }
 
 /* Autor: AndrewCarter 
-   Función sacada de  https://github.com/AndrewCarterUK/mnist-neural-network-plain-c/blob/master/neural_network.c
+   Función de activación sacada de 
+   https://github.com/AndrewCarterUK/mnist-neural-network-plain-c/blob/master/neural_network.c
 */
 void softmax_activation_function(float * activations, int length){
     int i;
@@ -71,14 +67,12 @@ void softmax_activation_function(float * activations, int length){
 }
 
 void regression_function (float * X, layer_t * layer, float * output){
-    float sum;
+    int value = 1;
     for(int i = 0; i < layer->neurons; i++ ){
-        sum = layer->b[i];
+        output[i] = layer->b[i];
         for(int j = 0; j < layer->connections; j++ ){
-            X[j] = PIXEL_SCALE(X[j]);
-            sum += X[j] * layer->W[i][j];
+            output[i] += PIXEL_SCALE(X[j]) * layer->W[i][j];                
         }
-        output[i] = sum;
     }
 }
 
@@ -138,42 +132,64 @@ void neural_network_backpropagation(layer_t * neural_network, float * activation
         calculateNewBias(neural_network[layer].b, deltas[layer], learning_rate, LABELS);   
         calculateNewWeights(neural_network[layer], activations[layer], deltas[layer], ARRAY_SIZE(deltas[layer]),learning_rate);
     }
-    printf("Backprop \n");
-    print_array(activations[1], 8);
 }
 
 void neural_network_training_step(layer_t * neural_network, float * X, int * Y, float learning_rate, int train){
     float * activations_array[LAYERS+1];
+    float activation[LABELS];
     activations_array[0] = X;
     for(int i = 0; i < LAYERS; i++){
-        float activation[neural_network[i].neurons];
+        memset(activation, 0, sizeof(activation));
         regression_function(activations_array[i], &neural_network[i], activation); 
         softmax_activation_function(activation, neural_network[i].neurons);
         activations_array[i+1] = activation;
     }
 
-    printf("Feed F \n");
+    printf("Vector de Salida \n");
     print_array(activations_array[1], 8);
-
     if (train){
         neural_network_backpropagation(neural_network, activations_array, Y, learning_rate);
     }
-
 }
+
+/**
+ * Calculate the accuracy of the predictions of a neural network on a dataset.
+
+float calculate_accuracy(mnist_dataset_t * dataset, neural_network_t * network){
+    float activations[MNIST_LABELS], max_activation;
+    int i, j, correct, predict;
+
+    // Loop through the dataset
+    for (i = 0, correct = 0; i < dataset->size; i++) {
+        // Calculate the activations for each image using the neural network
+        neural_network_hypothesis(&dataset->images[i], network, activations);
+
+        // Set predict to the index of the greatest activation
+        for (j = 0, predict = 0, max_activation = activations[0]; j < MNIST_LABELS; j++) {
+            if (max_activation < activations[j]) {
+                max_activation = activations[j];
+                predict = j;
+            }
+        }
+
+        // Increment the correct count if we predicted the right label
+        if (predict == dataset->labels[i]) {
+            correct++;
+        }
+    }
+
+    // Return the percentage we predicted correctly as the accuracy
+    return ((float) correct) / ((float) dataset->size);
+}
+ */
 
 void init(float * X , int * Y){
     layer_t neural_network[LAYERS];
-    
-    float learning_rate = 0.5f;
-
-    /* Topologia
-        1ra capa: 784 connexiones y 3 neuronas
-    */
-    int topology[] = {IMAGE_SIZE, 8}; 
+    int topology[] = {IMAGE_SIZE, 8}; // 784 conexiones, 8 neuronas
     size_t topology_size = ARRAY_SIZE(topology) - 1;
     create_neural_network(neural_network, topology, topology_size);
-
-    for (int i = 0; i < STEPS; i++) {
+    float learning_rate = 0.5f;
+    for (int i = 0; i < 1; i++) {
         neural_network_training_step(neural_network, X, Y, learning_rate, 1);
     }
 }
@@ -964,7 +980,6 @@ int main(int argc, char *argv[]){
 255.0,
 255.0,
 255.0,
-
     };
     int Y[] = {1,0,0,0,0,0,0,0};
     init(X, Y);

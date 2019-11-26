@@ -3,13 +3,9 @@
 
 #include "dataset_controller.h"
 
-#define LAYERS 2
+#define LAYERS 1
 #define NEURONS_MAX 10
 #define CONN_MAX IMAGE_SIZE
-
-typedef double (*ActivationFunc)(double sum);
-
-// todo dynamic list or linked list
 
 typedef struct layer_t_ {
     float b[NEURONS_MAX];
@@ -17,11 +13,5 @@ typedef struct layer_t_ {
     int neurons;
     int connections;
 } layer_t;
-
-typedef struct output {
-    double weighted_sum;
-    double activated_result;
-} output;
-
 
 #endif

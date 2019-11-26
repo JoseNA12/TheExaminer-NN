@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <stdio.h>
 
 #include "dataset_controller.h"
 #include "neural_network.h"
@@ -40,13 +41,15 @@ void create_layer(int n_connections, int n_neurons, layer_t * layer){
 
 void create_neural_network(layer_t * neural_network, int * topology, size_t topology_size){
     layer_t layer;
-    for(int i = 0; i < LAYERS; i++){
+    for(int i = 0; i < topology_size; i++){
         create_layer(topology[i], topology[i+1], &layer);
         neural_network[i] = layer;
     }
 }
 
-// Referencia: https://github.com/AndrewCarterUK/mnist-neural-network-plain-c/blob/master/neural_network.c
+/* Autor: AndrewCarter 
+   Función sacada de  https://github.com/AndrewCarterUK/mnist-neural-network-plain-c/blob/master/neural_network.c
+*/
 void softmax_activation_function(float * activations, int length){
     int i;
     float sum, max;
@@ -84,38 +87,89 @@ void print_array(float * array, int length){
     }
 }
 
-void neural_network_training_step(layer_t * neural_network, float * X, int * Y, float learning_rate){
-    for(int i = 0; i < LAYERS; i++){
-        float activation[neural_network[i].neurons];
-        regression_function(X, &neural_network[i], activation); 
-        softmax_activation_function(activation, neural_network[i].neurons);
-        print_array(activation, neural_network[i].neurons);
+float cross_entropy_loss(float * Ypredicted, float * Yreal, size_t vectorSize){
+    float sum = 0.0f;
+    for(int i = 0; i < vectorSize; i++){
+        sum += Yreal[i] * log(Ypredicted[i]);
+    }
+    return 0.0f - sum;
+}
+
+void cross_entropy_loss_derivative(float * Ypredicted, int * Yreal, float * output){
+    for(int i = 0; i < LABELS; i++){
+        output[i] = Ypredicted[i] - Yreal[i];
     }
 }
 
+void calculateNewBias(float * bias, float * delta, float lr, size_t biasSize){
+    for(int i = 0; i < biasSize; i++){
+        delta[i] *= lr;
+        bias[i] -= delta[i];
+    }
+}
+
+void calculateNewWeights(layer_t layer, float * activations, float * deltas, size_t deltSize, float learning_rate){
+    float result[IMAGE_SIZE];
+    for(int i = 0; i < layer.neurons; i++){
+        for(int j = 0; j < deltSize; j++){
+            result[i] += activations[i] * deltas[j] * learning_rate;
+        }
+    }
+
+    for(int i = 0; i < LABELS; i++){
+        for(int j = 0; j < IMAGE_SIZE; j++){
+            layer.W[i][j] -= result[j];
+        }
+    }
+}
+
+void neural_network_backpropagation(layer_t * neural_network, float * activations[LAYERS+1], int * Yreal, float learning_rate){
+    float deltas[LAYERS][IMAGE_SIZE]; 
+    for (unsigned layer = LAYERS ; layer-- > 0 ; ){ // Reversed loop
+        if(layer == LAYERS - 1){ // Ultima capa
+            int previousLayer = layer + 1; 
+            cross_entropy_loss_derivative(activations[previousLayer], Yreal, deltas[layer]);
+        }else{
+            printf("Capas ocultas que no hay lol");
+        }
+
+        // Gradient Descent
+        calculateNewBias(neural_network[layer].b, deltas[layer], learning_rate, LABELS);   
+        calculateNewWeights(neural_network[layer], activations[layer], deltas[layer], ARRAY_SIZE(deltas[layer]),learning_rate);
+    }
+
+}
+
+void neural_network_training_step(layer_t * neural_network, float * X, int * Y, float learning_rate, int train){
+    float * activations_array[LAYERS+1];
+    activations_array[0] = X;
+    for(int i = 0; i < LAYERS; i++){
+        float activation[neural_network[i].neurons];
+        regression_function(activations_array[i], &neural_network[i], activation); 
+        softmax_activation_function(activation, neural_network[i].neurons);
+        activations_array[i+1] = activation;
+    }
+
+    if (train){
+        neural_network_backpropagation(neural_network, activations_array, Y, learning_rate);
+    }
+
+}
+
 void init(float * X , int * Y){
-    print_array(X, 4);
     layer_t neural_network[LAYERS];
     
     float learning_rate = 0.5f;
+
     /* Topologia
         1ra capa: 784 connexiones y 3 neuronas
-        2ra capa: 3 conneciones y 4 neuronas
-        3ra capa: 4 conneciones y 8 salidas
     */
-    int topology[] = {IMAGE_SIZE, 3, 4, LABELS}; 
+    int topology[] = {IMAGE_SIZE, 8}; 
     size_t topology_size = ARRAY_SIZE(topology) - 1;
-
     create_neural_network(neural_network, topology, topology_size);
 
     for (int i = 0; i < STEPS; i++) {
-        // Run one step of gradient descent and calculate the loss
-        neural_network_training_step(neural_network, X, Y, learning_rate);
-
-        // Calculate the accuracy using the whole test dataset
-        // --
-
-        //printf("Step %04d\tAverage Loss: %.2f\tAccuracy: %.3f\n", i, loss / batch.size, accuracy);
+        neural_network_training_step(neural_network, X, Y, learning_rate, 1);
     }
 }
 

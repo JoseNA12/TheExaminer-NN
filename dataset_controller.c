@@ -15,7 +15,7 @@ x_set_t *read_image_file(char * filename) {
     size_t len = 0;
     ssize_t read;
     char buffer[256];
-    snprintf(buffer, sizeof buffer, "%s%s", "images_txt/", filename);
+    snprintf(buffer, sizeof buffer, "%s%s", "dataset/pixels/", filename);
     fp = fopen(buffer, "r");
     
     if (fp == NULL) {
@@ -46,7 +46,7 @@ int list_directory_files(int count_img) { // recibo desde Python la cantidad de 
     x_set_t *set_[count_img];
     DIR *d;
     struct dirent *dir;
-    d = opendir("./pixels/");
+    d = opendir("./dataset/pixels/");
     int i = 0;
 
     if (d){

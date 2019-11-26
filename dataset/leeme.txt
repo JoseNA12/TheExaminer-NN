@@ -1,0 +1,5 @@
+Carpetas:
+    annotations: Archivos txt de las etiquetas de las imagenes
+    images: Imagenes en crudo, sin procesar
+    images_set: Imagenes procesadas, redimensionadas y en escala de grises
+    pixels: Archivos txt con los pixeles de cada imagen de la carpeta 'images_set'

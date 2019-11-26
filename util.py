@@ -42,7 +42,7 @@ class Util:
         self.path_pixels = "dataset/pixels/"
         self.path_annotations = "dataset/annotations/"
 
-        self.so_file = "./dataset_controller.so"
+        self.so_file = "./neural_network.so" #"./dataset_controller.so"
 
     def get_count_img(self):
         return self.count_img
@@ -129,7 +129,7 @@ class Util:
 
     def call_C_function(self): 
         my_functions = CDLL(self.so_file)
-        my_functions.list_directory_files(self.count_img) # le envio la cantidad de imagenes procesadas
+        my_functions.start(self.count_img) # le envio la cantidad de imagenes procesadas
 
 
 def main():
@@ -138,6 +138,6 @@ def main():
     util.create_txt_files_pixels_imgs()
     util.create_txt_files_annotations()
 
-    #util.call_C_function()
+    util.call_C_function()
 
 main()

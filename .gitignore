@@ -1,3 +1,7 @@
 .vscode/
 main
 *.out
+*.so
+dataset/annotations/*.txt
+dataset/pixels/*.txt
+dataset/images_set/*.txt

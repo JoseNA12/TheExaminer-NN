@@ -6,6 +6,7 @@
 #include "dataset_controller.c"
 #include "neural_network.h"
 #include "Vector.c"
+#include "serializer.c"
 
 
 // Returns a random value between 0 and 1
@@ -15,11 +16,11 @@
 // Get the real used size of an array
 #define ARRAY_SIZE(x) ((int)(sizeof(x) / sizeof((x)[0])))
 
-#define STEPS 1000
+#define STEPS 10//00
 #define BATCH_SIZE 100
 
 /*
-Esta Red Neuronal esta inspirada en el video de la implementación manual de una NN en Python del canal DotCV
+Esta Red Neuronal esta inspirada en el video de la implementación manual de una NN en Python del canal DotCSV
 Video en cuestión: https://youtu.be/W8AeOXa_FqU
 */
 
@@ -42,9 +43,10 @@ void create_neural_network(layer_t * neural_network, int * topology, size_t topo
     }
 }
 
-/* Autor: AndrewCarter 
-   Función de activación sacada de 
-   https://github.com/AndrewCarterUK/mnist-neural-network-plain-c/blob/master/neural_network.c
+/* 
+    Autor: Andrew Carter 
+    Función de activación extraida de: 
+    https://github.com/AndrewCarterUK/mnist-neural-network-plain-c/blob/master/neural_network.c
 */
 void softmax_activation_function(float * activations, int length){
     int i;
@@ -152,7 +154,7 @@ void neural_network_training_step(layer_t * neural_network, float * X, int * Y, 
     }
 }
 
-void start(int count_img) { 
+void start_training(int count_img) { 
     x_set_t set_[count_img];
     list_directory_files(count_img, set_);
     layer_t neural_network[LAYERS];
@@ -165,5 +167,14 @@ void start(int count_img) {
             neural_network_training_step(neural_network, set_[i].pixel_matrix, set_[i].annotation, learning_rate, 1);
         }
     }
+    // al final del procesamiento almacenar de manera serializable, el entrenamiento
+    // de la red neuronal.
+    serialize(*neural_network);
+}
 
+void compute_image() {
+    layer_t neural_network[LAYERS];
+    deserialize(*neural_network);
+
+    // HACER AQUI EL PROCESAMIENTO DE LA IMAGEN
 }

@@ -6,17 +6,18 @@
 #define IMAGE_WIDTH 28
 #define IMAGE_HEIGHT 28
 #define IMAGE_SIZE IMAGE_WIDTH * IMAGE_HEIGHT
-#define LABELS 8
+
+int LABELS = 10;
 
 // Lista Enlazada de imgs. Cada img tiene su mapa de pixeles 
-typedef struct x_set_t_ {
-    float pixel_matrix[IMAGE_SIZE];
-    int annotation[LABELS];
-} x_set_t;
+typedef struct image_t_ {
+    float pixels[IMAGE_SIZE];
+    int label[LABELS];
+} image_t;
 
 
-void list_directory_files(int count_img, x_set_t *set_);
-x_set_t *read_pixels_image_file(char * filename);
-char read_annotation_image_file(char * filename);
+void list_directory_files(int count_img, image_t *images_set);
+image_t * read_pixels_image_file(char * filename);
+char read_label_image_file(char * filename);
 
 #endif

@@ -3,7 +3,7 @@
 
 #include "dataset_controller.h"
 
-#define LAYERS 1
+#define LAYERS 2
 
 typedef struct layer_t_ {
     float b[LABELS];
@@ -18,12 +18,11 @@ void softmax_activation_function(float * activations, int length);
 void regression_function (float * X, layer_t * layer, float * output);
 void print_array(float * array, int length);
 float cross_entropy_loss(float * Ypredicted, float * Yreal, size_t vectorSize);
-void cross_entropy_loss_derivative(float * Ypredicted, int * Yreal, float * output);
+void softmax_and_cross_entropy_loss_derivative(float * Ypredicted, int * Yreal, float * output, int n_neurons);
 void calculateNewBias(float * bias, float * delta, float lr, size_t biasSize);
 void calculateNewWeights(layer_t layer, float * activations, float * deltas, size_t deltSize, float learning_rate);
 void neural_network_backpropagation(layer_t * neural_network, float * activations[LAYERS+1], int * Yreal, float learning_rate);
 void neural_network_training_step(layer_t * neural_network, float * X, int * Y, float learning_rate, int train);
-//void init(float * X , int * Y);
 void start(int count_img);
 
 #endif

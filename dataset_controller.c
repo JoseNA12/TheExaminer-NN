@@ -7,14 +7,13 @@
 
 #define _GNU_SOURCE
 
-
 /*
     Se encarga de leer el conjunto de archivos de texto que contienen los pixeles
     de las respectivas imagenes del dataset.
     Se crea un struct donde almacenará los valores de los pixeles.
 */
-x_set_t *read_pixels_image_file(char * filename) {
-    x_set_t *set = malloc(sizeof(x_set_t));
+image_t *read_pixels_image_file(char * filename) {
+    image_t *set = malloc(sizeof(image_t));
     FILE * fp;
     char * line = NULL;
     size_t len = 0;
@@ -33,7 +32,7 @@ x_set_t *read_pixels_image_file(char * filename) {
     while ((read = getline(&line, &len, fp)) != -1) {
         //printf("Retrieved line of length %zu:\n", read);
         //printf("%d", i);
-        set->pixel_matrix[i] = atof(line);
+        set->pixels[i] = atof(line);
         i++;
     }
 
@@ -49,7 +48,7 @@ x_set_t *read_pixels_image_file(char * filename) {
 /*
     Lee de un archivo de texto las respectivas anotaciones/labels de las imagenes
 */
-char read_annotation_image_file(char * filename) {
+char read_label_image_file(char * filename) {
     char letter;
 
     FILE * fp;
@@ -68,7 +67,7 @@ char read_annotation_image_file(char * filename) {
 
     while ((read = getline(&line, &len, fp)) != -1) {
         letter = line[0];
-        //printf("Annotation: %c\n", letter);
+        //printf("label: %c\n", letter);
     }
 
     fclose(fp);
@@ -83,72 +82,84 @@ char read_annotation_image_file(char * filename) {
 /*
     Se encarga de cargar todo el conjunto de archivos de texto que contienen los pixeles
     ... de las respectivas imagenes del dataset .
-    Se crea una matriz de structs 'x_set_t', donde cada struct almacenará 
+    Se crea una matriz de structs 'image_t', donde cada struct almacenará 
     ... los valores de los pixeles. Además, se crea el respectivo etiquetado para cada label
 */
-void list_directory_files(int count_img, x_set_t *set_) {
+void list_directory_files(int count_img, image_t *images_set, char * datasetType) {
     DIR *d;
     struct dirent *dir;
+
+    if (strcmp(datasetType, str2))
     d = opendir("./dataset/pixels/");
     int i = 0;
 
     if (d){
-        while (((dir = readdir(d)) != NULL) && (i < count_img)) {
-            //printf("File: %s\n", dir->d_name);
-            set_[i] = *read_pixels_image_file(dir->d_name);
-            char letter = read_annotation_image_file(dir->d_name); 
-            //printf("Annotation: %c\n", letter);
+            while (((dir = readdir(d)) != NULL) && (i < count_img)) {
+                //printf("File: %s\n", dir->d_name);
+                images_set[i] = *read_pixels_image_file(dir->d_name);
+                char letter = read_label_image_file(dir->d_name); 
+                //printf("label: %c\n", letter);
 
-            if (letter == 'A') { // 65
-                int lb[] = {1, 0, 0, 0, 0, 0, 0, 0};
-                memcpy(set_[i].annotation, lb, sizeof(lb));
-            }
-            else {
-                if (letter == 'B') { // 66
-                    int lb[] = {0, 1, 0, 0, 0, 0, 0, 0};
-                    memcpy(set_[i].annotation, lb, sizeof(lb));
+                if (letter == 'A') { // 65
+                    int lb[] = {1, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+                    memcpy(images_set[i].label, lb, sizeof(lb));
                 }
                 else {
-                    if (letter == 'C') { // 67
-                        int lb[] = {0, 0, 1, 0, 0, 0, 0, 0};
-                        memcpy(set_[i].annotation, lb, sizeof(lb));
+                    if (letter == 'B') { // 66
+                        int lb[] = {0, 1, 0, 0, 0, 0, 0, 0, 0, 0};
+                        memcpy(images_set[i].label, lb, sizeof(lb));
                     }
                     else {
-                        if (letter == 'D') { // 68
-                            int lb[] = {0, 0, 0, 1, 0, 0, 0, 0};
-                            memcpy(set_[i].annotation, lb, sizeof(lb));
+                        if (letter == 'C') { // 67
+                            int lb[] = {0, 0, 1, 0, 0, 0, 0, 0, 0, 0};
+                            memcpy(images_set[i].label, lb, sizeof(lb));
                         }
                         else {
-                            if (letter == 'E') { // 69
-                                int lb[] = {0, 0, 0, 0, 1, 0, 0, 0};
-                                memcpy(set_[i].annotation, lb, sizeof(lb));
+                            if (letter == 'D') { // 68
+                                int lb[] = {0, 0, 0, 1, 0, 0, 0, 0, 0, 0};
+                                memcpy(images_set[i].label, lb, sizeof(lb));
                             }
                             else {
-                                if (letter == 'F') { // 70
-                                    int lb[] = {0, 0, 0, 0, 0, 1, 0, 0};
-                                    memcpy(set_[i].annotation, lb, sizeof(lb));
+                                if (letter == 'E') { // 69
+                                    int lb[] = {0, 0, 0, 0, 1, 0, 0, 0, 0, 0};
+                                    memcpy(images_set[i].label, lb, sizeof(lb));
                                 }
                                 else {
-                                    if (letter == 'S') { // 83
-                                        int lb[] = {0, 0, 0, 0, 0, 0, 1, 0};
-                                        memcpy(set_[i].annotation, lb, sizeof(lb));
+                                    if (letter == 'F') { // 70
+                                        int lb[] = {0, 0, 0, 0, 0, 1, 0, 0, 0, 0};
+                                        memcpy(images_set[i].label, lb, sizeof(lb));
                                     }
-                                    else { // X
-                                        int lb[] = {0, 0, 0, 0, 0, 0, 0, 1};
-                                        memcpy(set_[i].annotation, lb, sizeof(lb));
+                                    else {
+                                        if (letter == 'X') { // 83
+                                            int lb[] = {0, 0, 0, 0, 0, 0, 1, 0, 0, 0};
+                                            memcpy(images_set[i].label, lb, sizeof(lb));
+                                        }
+                                        else { // X
+                                            if (letter == 'S') { // 83
+                                                int lb[] = {0, 0, 0, 0, 0, 0, 0, 1, 0, 0};
+                                                memcpy(images_set[i].label, lb, sizeof(lb));
+                                            }
+                                            else { // X
+                                                if (letter == 'N') { // 83
+                                                    int lb[] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 0};
+                                                    memcpy(images_set[i].label, lb, sizeof(lb));
+                                                }else{
+                                                    int lb[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
+                                                    memcpy(images_set[i].label, lb, sizeof(lb));
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }
                         }
                     }
                 }
+                
+                //printf("Pixel retrieved: %lf:\n", images_set[i]->pixels[4]);
+                //free(images_set[i]);
+                i++;
             }
-            
-            //printf("Pixel retrieved: %lf:\n", set_[i]->pixel_matrix[4]);
-            //free(set_[i]);
-            i++;
+            closedir(d);
         }
-        closedir(d);
-    }
-    //return(0);
 }
